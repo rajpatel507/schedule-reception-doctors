@@ -1,0 +1,29 @@
+body {
+	background-color: #e0e0e0;
+	margin: 0;
+	padding: 0;
+}
+
+#page {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-content: stretch;
+}
+
+header {
+	text-align: center;
+	flex-shrink: 1;
+}
+
+article {
+	flex-grow: 1;
+	margin: 5vh;
+	margin-top: 0;
+	background-color: white;
+	overflow: hidden;
+	box-shadow: 0 0 8px rgba(0,0,0,0.2);
+	border-radius: 5px;
+}
+
