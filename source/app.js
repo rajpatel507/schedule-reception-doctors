@@ -135,85 +135,85 @@
 		renderDepartment: function(department, parent) {
 			var node = $("<div>").addClass("department").appendTo(parent);
 
-				$("<h3>").text(department.name).appendTo(node);
+			$("<h3>").text(department.name).appendTo(node);
 
-				var table = $("<table>").appendTo(node);
-				var thead = $("<thead>").appendTo(table);
-				var tbody = $("<tbody>").appendTo(table);
-				var head_tr = $("<tr>").appendTo(thead);
+			var table = $("<table>").appendTo(node);
+			var thead = $("<thead>").appendTo(table);
+			var tbody = $("<tbody>").appendTo(table);
+			var head_tr = $("<tr>").appendTo(thead);
 
-				var table_titles = ["ФИО", "Кабинет"].concat(scheduler.getFormattedNearbyDates());
-				table_titles[2] = "Сегодня";
+			var table_titles = ["ФИО", "Кабинет"].concat(scheduler.getFormattedNearbyDates());
+			table_titles[2] = "Сегодня";
 
-				for(var i = 0; i < table_titles.length; i++) {
-					$("<td>").text(table_titles[i]).appendTo(head_tr);
+			for(var i = 0; i < table_titles.length; i++) {
+				$("<td>").text(table_titles[i]).appendTo(head_tr);
+			}
+
+
+			for(var i = 0; i < department.resources.length; i++) {
+				var resource = department.resources[i];
+
+				var resource_tr = $("<tr>").appendTo(tbody);
+
+				var name = resource.name;
+				var cabinet = "";
+
+				var parsed_name = name.match(/(.+)\((?:к\. ?)?(\d+)\)\s*(.*)/, '');
+				if(parsed_name) {
+					name = (parsed_name[1] + " " + parsed_name[3]).trim();
+					cabinet = parsed_name[2];
 				}
 
+				$("<td>").addClass("name").text(name).appendTo(resource_tr);
+				$("<td>").addClass("cabinet").text(cabinet).appendTo(resource_tr);
 
-				for(var i = 0; i < department.resources.length; i++) {
-					var resource = department.resources[i];
+				var schedules = {};
+				var currentDate = new Date();
 
-					var resource_tr = $("<tr>").appendTo(tbody);
+				for(var j = 0; j < resource.schedule.length; j++) {
+					var schedule = resource.schedule[j];
 
-					var name = resource.name;
-					var cabinet = "";
-
-					var parsed_name = name.match(/(.+)\((?:к\. ?)?(\d+)\)\s*(.*)/, '');
-					if(parsed_name) {
-						name = (parsed_name[1] + " " + parsed_name[3]).trim();
-						cabinet = parsed_name[2];
+					if(typeof(schedule.date) != "string") {
+						continue;
 					}
 
-					$("<td>").addClass("name").text(name).appendTo(resource_tr);
-					$("<td>").addClass("cabinet").text(cabinet).appendTo(resource_tr);
+					var dateOrder = scheduler.getDateOrder(schedule.date);
 
-					var schedules = {};
-					var currentDate = new Date();
-
-					for(var j = 0; j < resource.schedule.length; j++) {
-						var schedule = resource.schedule[j];
-
-						if(typeof(schedule.date) != "string") {
-							continue;
-						}
-
-						var dateOrder = scheduler.getDateOrder(schedule.date);
-
-						if(!dateOrder) {
-							continue;
-						}
-
-						schedules[dateOrder.order] = schedule;
+					if(!dateOrder) {
+						continue;
 					}
 
-					for(var j = 0; j <= scheduler.nextDaysSchedule; j++) {
-						var cell = $("<td>").addClass("schedule").appendTo(resource_tr);
+					schedules[dateOrder.order] = schedule;
+				}
 
-						if(j == 0) {
-							cell.addClass("today");
-						}
+				for(var j = 0; j <= scheduler.nextDaysSchedule; j++) {
+					var cell = $("<td>").addClass("schedule").appendTo(resource_tr);
 
-						if(schedules[j] && schedules[j].receptionInfo.length) {
-							var content = schedules[j].receptionInfo;
-							var times = content.match(/\d\d:\d\d-\d\d:\d\d(?=, ?|$)/g);
-							if(times) {
-								for(var k = 0; k < times.length; k++) {
-									if(k) {
-										cell.append($("<span>").addClass("separator").text(", "));
-									}
-									cell.append($("<span>").addClass("time").text(times[k]));
+					if(j == 0) {
+						cell.addClass("today");
+					}
+
+					if(schedules[j] && schedules[j].receptionInfo.length) {
+						var content = schedules[j].receptionInfo;
+						var times = content.match(/\d\d:\d\d-\d\d:\d\d(?=, ?|$)/g);
+						if(times) {
+							for(var k = 0; k < times.length; k++) {
+								if(k) {
+									cell.append($("<span>").addClass("separator").text(", "));
 								}
-								cell.addClass("times").addClass("times-"+k);
+								cell.append($("<span>").addClass("time").text(times[k]));
 							}
-							else {
-								cell.addClass("special").text(content);
-							}
+							cell.addClass("times").addClass("times-"+k);
 						}
 						else {
-							cell.text('---').addClass("empty");
+							cell.addClass("special").text(content);
 						}
 					}
+					else {
+						cell.text('---').addClass("empty");
+					}
 				}
+			}
 		}
 	};
 
