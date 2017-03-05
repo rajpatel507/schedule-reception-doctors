@@ -45,7 +45,7 @@
 							resources: data.result.availableResource
 						});
 						if(++loadedCount == ids.length) {
-							view.render();
+							app.complete();
 						}
 					});
 				}, app);
@@ -90,39 +90,46 @@
 			});
 
 			return departments;
+		},
+
+		complete: function() {
+			view.render();
 		}
 	};
 
 	var view = {
-		departments: null,
+		domNode: null,
 
 		init: function() {
-			view.departments = $("#departments");
+			view.domNode = $("#content");
 		},
 
 		render: function() {
-			view.departments.empty();
+			view.domNode.empty();
 
 			var clinics = model.getClinics();
 			Object.keys(clinics).forEach(function(clinicKey, clinicIndex) {
-				view.renderClinic(clinics[clinicKey]);
+				view.renderClinic(clinics[clinicKey], view.domNode);
 			});
 		},
 
-		renderClinic: function(clinic) {
+		renderClinic: function(clinic, parent) {
+			var node = $("<div>").addClass("clinic").appendTo(parent);
 
-			$("<h2>").text(clinic.name).appendTo(view.departments);
+			$("<h2>").text(clinic.name).appendTo(node);
 
 			var departments = app.getDepartments(clinic);
 			Object.keys(departments).forEach(function(departmentKey, departmentIndex) {
-				view.renderDepartment(departments[departmentKey]);
+				view.renderDepartment(departments[departmentKey], node);
 			});
 		},
 
-		renderDepartment: function(department) {
-				$("<h3>").text(department.name).appendTo(view.departments);
+		renderDepartment: function(department, parent) {
+			var node = $("<div>").addClass("department").appendTo(parent);
 
-				var table = $("<table>").appendTo(view.departments);
+				$("<h3>").text(department.name).appendTo(node);
+
+				var table = $("<table>").appendTo(node);
 				var thead = $("<thead>").appendTo(table);
 				var tbody = $("<tbody>").appendTo(table);
 				var head_tr = $("<tr>").appendTo(thead);

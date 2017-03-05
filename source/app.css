@@ -35,13 +35,15 @@ h2 {
 	text-align: center;
 }
 
+#departments table td {
+	font-size: 0.9em;
+}
 #departments table td.cabinet {
 	text-align: right;
 }
 
 #departments table td.schedule {
 	text-align: center;
-	font-size: 0.9em;
 }
 
 #departments table td.schedule.empty, #departments table td.schedule.special {
@@ -56,12 +58,22 @@ h2 {
 	display: none;
 }
 
+@media (min-width: 1100px) {
+	#departments table td {
+		font-size: 1em;
+	}
+	#departments table td.schedule {
+		font-size: 0.9em;
+	}
+}
 @media (min-width: 1200px) {
 	#departments table td.name {
 		width: 25%;
+		font-size: 1em;
 	}
 
 	#departments table td.schedule {
 		width: 10%;
+		font-size: 1em;
 	}
 }
