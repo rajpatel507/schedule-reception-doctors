@@ -1,13 +1,10 @@
 (function(w, d){
 	$(document).ready(function(){
-		app.init({id: [10000376, 10000378], resourcesPerPage: 10, paginationInterval: 5000});
+		app.init({ids: [10000376, 10000378], paginationInterval: 5000});
 	});
 
 	var model = {
 		clinics: [],
-		usedDepartments: [],
-		currentClinic: 0,
-		currentResource: 0,
 
 		addClinic: function(data) {
 			var clinic = {};
@@ -22,53 +19,8 @@
 			model.clinics.push(clinic);
 		},
 
-		getClinicResources: function(id) {
-			for(var i = 0; i < model.clinics.length; i++) {
-				if(model.clinics[i].id == id) {
-					return model.clinics[i].resources;
-					break;
-				}
-			}
-		},
-
-		getClinicsList: function() {
-			var clinicsList = [];
-			Object.keys(model.clinics).forEach(function(clinicID) {
-				var clinic = {};
-				clinic.id = clinicID;
-				clinic.name = model.clinics[clinicID].name;
-				clinicsList.push(clinic);
-			}, model);
-			return clinicsList;
-		},
-
-		getCurrentClinic: function() {
-			return model.currentClinic;
-		},
-
-		setCurrentClinic: function(clinic) {
-			model.currentClinic = clinic;
-		},
-
-		getCurrentResource: function() {
-			return model.currentResource;
-		},
-
-		setCurrentResource: function(resource) {
-			model.currentResource = resource;
-		},
-
-		getClinicData: function(clinicID) {
-			return model.clinics[clinicID];
-		},
-
 		getClinics: function() {
 			return model.clinics;
-		},
-
-		getLastResource: function() {
-			var clinic = model.clinics[model.getCurrentClinic()];
-			return clinic.resources.length;
 		}
 	};
 
@@ -76,12 +28,11 @@
 		init: function(config) {
 			view.init();
 
-			app.resourcesPerPage = config.resourcesPerPage || 5;
 			app.paginationInterval = config.paginationInterval || 10000;
 
-			if(config.id instanceof Array) {
+			if(config.ids instanceof Array) {
 				var loadedCount = 0;
-				config.id.forEach(function(idx) {
+				config.ids.forEach(function(idx) {
 					app.loadData(idx, function(error, data) {
 						if(error) return console.log(error);
 						model.addClinic({
@@ -89,43 +40,14 @@
 							name: data.result.name,
 							resources: data.result.availableResource
 						});
-						if(++loadedCount == config.id.length) {
+						if(++loadedCount == config.ids.length) {
 							view.render();
 						}
 					});
 				}, app);
-			} else if(Number.isInteger(config.id)) {
-				app.loadData(config.id, function(error, data) {
-					if(error) return console.log(error);
-					model.addClinic({
-						id: config.id,
-						name: data.result.name,
-						resources: data.result.availableResource
-					});
-					view.render();
-				});
+			} else {
+				throw new Error("Invalid IDs. config.ids must be an Array.");
 			}
-
-			//app.autoPagination();
-		},
-
-		autoPagination: function() {
-			var self = app;
-			setInterval(function() {
-				self.nextPage();
-			}, app.paginationInterval);
-		},
-
-		nextPage: function() {
-			if(model.getCurrentResource() >= model.getLastResource()) {
-				model.setCurrentClinic(model.getCurrentClinic() + 1);
-				model.setCurrentResource(0);
-				model.usedDepartments = [];
-				if(model.getCurrentClinic() >= model.clinics.length) {
-					model.setCurrentClinic(0);
-				}
-			}
-			view.render();
 		},
 
 		loadData: function(id, callback) {
@@ -151,42 +73,19 @@
 			});
 		},
 
-		getDepartments: function(clinic_id) {
+		getDepartments: function(clinic) {
 			var departments = [];
-			var departmentsCount = 0;
-			model.getClinicResources(clinic_id).forEach(function(resource) {
+
+			clinic.resources.forEach(function(resource) {
 				var department_name = resource.lpuDepartment.name;
-				if(departmentsCount >= app.resourcesPerPage && departments[department_name] == undefined) {
-					if(departments[department_name] != undefined && model.usedDepartments[department_name] == undefined) {
-							model.usedDepartments[department_name] = department_name;
-					}
-				} else {
-					if(departments[department_name] == undefined && model.usedDepartments[department_name] == undefined) {
-						var department = {};
-						department.name = department_name;
-						department.resources = [];
-						departments[department_name] = department;
-					}
-					if(departments[department_name] != undefined) {
-						departments[department_name].resources.push(resource);
-						model.usedDepartments[department_name] = department_name;
-						model.setCurrentResource(model.getCurrentResource() + 1);
-						departmentsCount++;
-					}
-				}
-			}, app);
+				departments[department_name] = departments[department_name] || {
+					name: department_name,
+					resources: []
+				};
+				departments[department_name].resources.push(resource);
+			});
+
 			return departments;
-		},
-
-		getClinics: function() {
-		   var clinics = model.getClinicsList();
-		   return clinics;
-		},
-
-		getCurrentClinic: function() {
-			var clinicID = model.getCurrentClinic();
-			var clinic = model.getClinicData(clinicID);
-			return clinic;
 		}
 	};
 
@@ -210,7 +109,7 @@
 
 			$("<h2>").text(clinic.name).appendTo(view.departments);
 
-			var departments = app.getDepartments(clinic.id);
+			var departments = app.getDepartments(clinic);
 			Object.keys(departments).forEach(function(departmentKey, departmentIndex) {
 				view.renderDepartment(departments[departmentKey]);
 			});
