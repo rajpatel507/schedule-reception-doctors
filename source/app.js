@@ -4,6 +4,7 @@
 	var nextDaysSchedule = 6;
 
 	$(document).ready(function(){
+		statusPanel.status("DOM done, initialize…");
 		app.init();
 	});
 
@@ -37,6 +38,7 @@
 			if(ids instanceof Array) {
 				var loadedCount = 0;
 				ids.forEach(function(idx) {
+					statusPanel.status("Loading external data (" + idx + ")");
 					app.loadData(idx, function(error, data) {
 						if(error) return console.log(error);
 						model.addClinic({
@@ -93,7 +95,10 @@
 		},
 
 		complete: function() {
+			statusPanel.status("External data loaded, rendering layout…");
 			view.render();
+
+			statusPanel.status("Ready");
 		}
 	};
 
@@ -260,4 +265,11 @@
 			return formatted;
 		}
 	}
+
+	var statusPanel = {
+		status: function(text){
+			$("#status").text(text);
+		}
+	}
+	statusPanel.status("Javascript loaded, waiting to DOM…");
 })(window, window.document);

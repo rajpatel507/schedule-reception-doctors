@@ -17,10 +17,20 @@ header {
 	flex-shrink: 1;
 }
 
+footer {
+	flex-shrink: 1;
+	min-height: 5vh;
+	color: #aaa;
+	font-size: 12px;
+	display: flex;
+	margin: 0 5vh;
+	align-items: center;
+	justify-content: space-between;
+}
+
 article {
 	flex-grow: 1;
-	margin: 5vh;
-	margin-top: 0;
+	margin: 0 5vh;
 	background-color: white;
 	overflow: scroll;
 	box-shadow: 0 0 8px rgba(0,0,0,0.2);
@@ -31,48 +41,48 @@ h2 {
 	text-align: center;
 }
 
-#departments table thead td {
+table thead td {
 	text-align: center;
 }
 
-#departments table td {
+table td {
 	font-size: 0.9em;
 }
-#departments table td.cabinet {
+table td.cabinet {
 	text-align: right;
 }
 
-#departments table td.schedule {
+table td.schedule {
 	text-align: center;
 }
 
-#departments table td.schedule.empty, #departments table td.schedule.special {
+table td.schedule.empty, table td.schedule.special {
 	color: #555;
 }
 
-#departments table td.schedule .time {
+table td.schedule .time {
 	white-space: nowrap;
 	display: block;
 }
-#departments table td.schedule .separator {
+table td.schedule .separator {
 	display: none;
 }
 
 @media (min-width: 1100px) {
-	#departments table td {
+	table td {
 		font-size: 1em;
 	}
-	#departments table td.schedule {
+	table td.schedule {
 		font-size: 0.9em;
 	}
 }
 @media (min-width: 1200px) {
-	#departments table td.name {
+	table td.name {
 		width: 25%;
 		font-size: 1em;
 	}
 
-	#departments table td.schedule {
+	table td.schedule {
 		width: 10%;
 		font-size: 1em;
 	}
