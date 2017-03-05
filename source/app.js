@@ -136,9 +136,14 @@
 					var resource_tr = $("<tr>");
 					var resource_data = [];
 
-					var delimiter_index = resource.name.split(" ", 2).join().length;
-					var name = resource.name.substr(0, delimiter_index);
-					var cabinet = resource.name.substr(delimiter_index);
+					var name = resource.name;
+					var cabinet = "";
+
+					var parsed_name = name.match(/(.+)\((?:к\. ?)?(\d+)\)\s*(.*)/, '');
+					if(parsed_name) {
+						name = (parsed_name[1] + " " + parsed_name[3]).trim();
+						cabinet = parsed_name[2];
+					}
 
 					resource_data.push(name);
 					resource_data.push(cabinet);
