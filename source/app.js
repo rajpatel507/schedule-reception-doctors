@@ -179,7 +179,18 @@
 
 						if(schedules[j] && schedules[j].receptionInfo.length) {
 							var content = schedules[j].receptionInfo;
-							cell.text(schedules[j].receptionInfo);
+							var times = content.match(/\d\d:\d\d-\d\d:\d\d(?=, ?|$)/g);
+							if(times) {
+								for(var k = 0; k < times.length; k++) {
+									if(k) {
+										cell.append($("<span>").addClass("separator").text(", "));
+									}
+									cell.append($("<span>").addClass("time").text(times[k]));
+								}
+							}
+							else {
+								cell.addClass("special").text(content);
+							}
 						}
 						else {
 							cell.text('---').addClass("empty");
@@ -204,7 +215,7 @@
 			var shiftingDate = new Date();
 			shiftingDate.setHours(12); //Prevent to summer time shifting bug
 
-			for(i = 0; i <= scheduler.nextDaysSchedule; i++) {
+			for(var i = 0; i <= scheduler.nextDaysSchedule; i++) {
 				scheduler.nearbyDates[scheduler.formatDate(shiftingDate)] = {
 					order: i,
 					date: new Date(shiftingDate)

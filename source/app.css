@@ -44,6 +44,18 @@ h2 {
 	font-size: 0.9em;
 }
 
+#departments table td.schedule.empty, #departments table td.schedule.special {
+	color: #555;
+}
+
+#departments table td.schedule .time {
+	white-space: nowrap;
+	display: block;
+}
+#departments table td.schedule .separator {
+	display: none;
+}
+
 @media (min-width: 1200px) {
 	#departments table td.name {
 		width: 25%;
