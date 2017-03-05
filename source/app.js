@@ -187,6 +187,7 @@
 									}
 									cell.append($("<span>").addClass("time").text(times[k]));
 								}
+								cell.addClass("times").addClass("times-"+k);
 							}
 							else {
 								cell.addClass("special").text(content);
