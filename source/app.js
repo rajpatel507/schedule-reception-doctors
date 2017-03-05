@@ -1,4 +1,8 @@
-window.onload = function () {
+(function(w, d){
+	$(document).ready(function(){
+		app.init({id: [10000376, 10000378], resourcesPerPage: 10, paginationInterval: 5000});
+	});
+
 	var model = {
 		clinics: [],
 		usedDepartments: [],
@@ -128,24 +132,19 @@ window.onload = function () {
 				'params': {'lpu_id': id}
 			};
 
-			var xhr = new XMLHttpRequest();
-			var json = JSON.stringify(request_data);
-
-			xhr.open("POST", 'https://api.emias.info/jsonproxy/v1/', true)
-			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-
-			xhr.onreadystatechange = function() {
-			  if (xhr.readyState != 4) return;
-			  if (xhr.status != 200) {
-				callback(xhr.status, null);
-			  } else {
-				var result = JSON.parse(xhr.responseText);
-				if(result.error) callback(result.error, null);
-				else callback(null, result);
-			  }
-			}
-
-			xhr.send(json);
+			$.ajax({
+				url: "https://api.emias.info/jsonproxy/v1/",
+				method: "POST",
+				contentType: "application/json; charset=utf-8",
+				data: JSON.stringify(request_data),
+				dataType: "json"
+			})
+			.done(function( data ) {
+				callback(null, data);
+			})
+			.fail(function( jqXHR, textStatus ) {
+				callback( textStatus, null );
+			});
 		},
 
 		getDepartments: function(clinic_id) {
@@ -287,5 +286,4 @@ window.onload = function () {
 			});
 		}
 	};
-	app.init({id: [10000376, 10000378], resourcesPerPage: 10, paginationInterval: 5000});
-}
+})(window, window.document);
