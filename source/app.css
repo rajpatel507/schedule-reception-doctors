@@ -30,3 +30,26 @@ article {
 h2 {
 	text-align: center;
 }
+
+#departments table thead td {
+	text-align: center;
+}
+
+#departments table td.cabinet {
+	text-align: right;
+}
+
+#departments table td.schedule {
+	text-align: center;
+	font-size: 0.9em;
+}
+
+@media (min-width: 1200px) {
+	#departments table td.name {
+		width: 25%;
+	}
+
+	#departments table td.schedule {
+		width: 10%;
+	}
+}
