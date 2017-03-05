@@ -127,7 +127,8 @@
 				var tbody = $("<tbody>").appendTo(table);
 				var head_tr = $("<tr>").appendTo(thead);
 
-				var table_titles = ["ФИО", "Кабинет", "Сегодня", "26.02", "27.02", "28.02", "1.03", "2.03", "3.03"];
+				var table_titles = ["ФИО", "Кабинет"].concat(scheduler.getFormattedNearbyDates());
+				table_titles[2] = "Сегодня";
 
 				for(var i = 0; i < table_titles.length; i++) {
 					$("<td>").text(table_titles[i]).appendTo(head_tr);
@@ -241,6 +242,15 @@
 			}
 
 			return null;
+		},
+		getFormattedNearbyDates: function(){
+			var formatted = [];
+			scheduler.init();
+			Object.keys(scheduler.nearbyDates).forEach(function(dateKey, dateIndex) {
+				var date = scheduler.nearbyDates[dateKey].date;
+				formatted.push(date.getDate() + ". " + (date.getMonth()+1) + ".");
+			});
+			return formatted;
 		}
 	}
 })(window, window.document);
