@@ -19,13 +19,13 @@
 			});
 
 			clinic.resources = data.resources;
-			this.clinics.push(clinic);
+			model.clinics.push(clinic);
 		},
 
 		getClinicResources: function(id) {
-			for(var i = 0; i < this.clinics.length; i++) {
-				if(this.clinics[i].id == id) {
-					return this.clinics[i].resources;
+			for(var i = 0; i < model.clinics.length; i++) {
+				if(model.clinics[i].id == id) {
+					return model.clinics[i].resources;
 					break;
 				}
 			}
@@ -33,37 +33,41 @@
 
 		getClinicsList: function() {
 			var clinicsList = [];
-			Object.keys(this.clinics).forEach(function(clinicID) {
+			Object.keys(model.clinics).forEach(function(clinicID) {
 				var clinic = {};
 				clinic.id = clinicID;
-				clinic.name = this.clinics[clinicID].name;
+				clinic.name = model.clinics[clinicID].name;
 				clinicsList.push(clinic);
-			}, this);
+			}, model);
 			return clinicsList;
 		},
 
 		getCurrentClinic: function() {
-			return this.currentClinic;
+			return model.currentClinic;
 		},
 
 		setCurrentClinic: function(clinic) {
-			this.currentClinic = clinic;
+			model.currentClinic = clinic;
 		},
 
 		getCurrentResource: function() {
-			return this.currentResource;
+			return model.currentResource;
 		},
 
 		setCurrentResource: function(resource) {
-			this.currentResource = resource;
+			model.currentResource = resource;
 		},
 
 		getClinicData: function(clinicID) {
-			return this.clinics[clinicID];
+			return model.clinics[clinicID];
+		},
+
+		getClinics: function() {
+			return model.clinics;
 		},
 
 		getLastResource: function() {
-			var clinic = this.clinics[this.getCurrentClinic()];
+			var clinic = model.clinics[model.getCurrentClinic()];
 			return clinic.resources.length;
 		}
 	};
@@ -72,13 +76,13 @@
 		init: function(config) {
 			view.init();
 
-			this.resourcesPerPage = config.resourcesPerPage || 5;
-			this.paginationInterval = config.paginationInterval || 10000;
+			app.resourcesPerPage = config.resourcesPerPage || 5;
+			app.paginationInterval = config.paginationInterval || 10000;
 
 			if(config.id instanceof Array) {
 				var loadedCount = 0;
 				config.id.forEach(function(idx) {
-					this.loadData(idx, function(error, data) {
+					app.loadData(idx, function(error, data) {
 						if(error) return console.log(error);
 						model.addClinic({
 							id: idx,
@@ -89,9 +93,9 @@
 							view.render();
 						}
 					});
-				}, this);
+				}, app);
 			} else if(Number.isInteger(config.id)) {
-				this.loadData(config.id, function(error, data) {
+				app.loadData(config.id, function(error, data) {
 					if(error) return console.log(error);
 					model.addClinic({
 						id: config.id,
@@ -102,14 +106,14 @@
 				});
 			}
 
-			this.autoPagination();
+			//app.autoPagination();
 		},
 
 		autoPagination: function() {
-			var self = this;
+			var self = app;
 			setInterval(function() {
 				self.nextPage();
-			}, this.paginationInterval);
+			}, app.paginationInterval);
 		},
 
 		nextPage: function() {
@@ -152,7 +156,7 @@
 			var departmentsCount = 0;
 			model.getClinicResources(clinic_id).forEach(function(resource) {
 				var department_name = resource.lpuDepartment.name;
-				if(departmentsCount >= this.resourcesPerPage && departments[department_name] == undefined) {
+				if(departmentsCount >= app.resourcesPerPage && departments[department_name] == undefined) {
 					if(departments[department_name] != undefined && model.usedDepartments[department_name] == undefined) {
 							model.usedDepartments[department_name] = department_name;
 					}
@@ -170,7 +174,7 @@
 						departmentsCount++;
 					}
 				}
-			}, this);
+			}, app);
 			return departments;
 		},
 
@@ -187,45 +191,50 @@
 	};
 
 	var view = {
+		departments: null,
+
 		init: function() {
-			this.departments = document.getElementById('departments');
+			view.departments = $("#departments");
 		},
 
 		render: function() {
-			this.departments.innerHTML = '';
+			view.departments.empty();
 
-			var clinic = app.getCurrentClinic();
+			var clinics = model.getClinics();
+			Object.keys(clinics).forEach(function(clinicKey, clinicIndex) {
+				view.renderClinic(clinics[clinicKey]);
+			});
+		},
 
-			var clinic_title = document.createElement('h2');
-			clinic_title.className = 'text-center';
-			clinic_title.appendChild(document.createTextNode(clinic.name));
+		renderClinic: function(clinic) {
 
-			this.departments.appendChild(clinic_title);
+			$("<h2>").text(clinic.name).appendTo(view.departments);
 
 			var departments = app.getDepartments(clinic.id);
 			Object.keys(departments).forEach(function(departmentKey, departmentIndex) {
-				var department = departments[departmentKey];
+				view.renderDepartment(departments[departmentKey]);
+			});
+		},
 
-				var title = document.createElement('h3');
-				title.textContent = department.name;
+		renderDepartment: function(department) {
+				$("<h3>").text(department.name).appendTo(view.departments);
 
-				var table = document.createElement('table');
-				var thead = document.createElement('thead');
-				var tbody = document.createElement('tbody');
+				var table = $("<table>");
+				var thead = $("<thead>");
+				var tbody = $("<tbody>");
 
-				var head_tr = document.createElement('tr');
-				var table_titles = ['ФИО', 'Кабинет', 'Сегодня', '26.02', '27.02', '28.02', '1.03', '2.03', '3.03'];
+				var head_tr = $("<tr>");
+				var table_titles = ["ФИО", "Кабинет", "Сегодня", "26.02", "27.02", "28.02", "1.03", "2.03", "3.03"];
+
 				for(var i = 0; i < table_titles.length; i++) {
-					var title_td = document.createElement('td');
-					title_td.appendChild(document.createTextNode(table_titles[i]));
-					head_tr.appendChild(title_td);
+					$("<td>").text(table_titles[i]).appendTo(head_tr);
 				}
-				thead.appendChild(head_tr);
+				thead.append(head_tr);
 
 
 				for(var i = 0; i < department.resources.length; i++) {
 					var resource = department.resources[i];
-					var resource_tr = document.createElement('tr');
+					var resource_tr = $("<tr>");
 					var resource_data = [];
 
 					var delimiter_index = resource.name.split(" ", 2).join().length;
@@ -269,21 +278,15 @@
 					}
 
 					for(var j = 0; j < resource_data.length; j++) {
-						var td = document.createElement('td');
-						var text = document.createTextNode(resource_data[j]);
-						td.appendChild(text);
-						resource_tr.appendChild(td);
+						$("<td>").text(resource_data[j]).appendTo(resource_tr);
 					}
 
-					tbody.appendChild(resource_tr);
+					tbody.append(resource_tr);
 				}
+				table.append(thead);
+				table.append(tbody);
 
-				table.appendChild(thead);
-				table.appendChild(tbody);
-
-				this.departments.appendChild(title);
-				this.departments.appendChild(table);
-			});
+				view.departments.append(table);
 		}
 	};
 })(window, window.document);
