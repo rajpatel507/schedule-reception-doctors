@@ -98,6 +98,9 @@
 			statusPanel.status("External data loaded, rendering layout…");
 			view.render();
 
+			statusPanel.status("Rendered, computing dimensions…");
+			paginator.init();
+
 			statusPanel.status("Ready");
 		}
 	};
@@ -213,6 +216,67 @@
 				}
 		}
 	};
+
+	var paginator = {
+
+		init: function() {
+			var root = view.domNode;
+			var viewPortHeight = root.parent().outerHeight();
+			var pages = [];
+
+			$(".clinic", root).each(function(clinicIndex){
+				$(".clinic, .department", root).hide();
+
+				var clinic = $(this);
+				clinic.show();
+
+				//Open empty set
+				var clinicPages = [];
+				var set = [];
+				clinicPages.push(set);
+
+				var items = $(".department", clinic);
+				items.each(function(departmentIndex){
+					var singleOversized = false;
+					var _this = $(this).show();
+
+					//Size ok
+					if(clinic.outerHeight() < viewPortHeight) {
+						set.push(this);
+					}
+					else {
+						//No items in set - oversized item
+						if(set.length == 0) {
+							set.push(this);
+							singleOversized = true;
+						}
+
+						//Rotate set
+						set = [];
+						clinicPages.push(set);
+						items.hide();
+
+						//Add to set only when not already added
+						if(!singleOversized) {
+							_this.show();
+							set.push(this);
+						}
+					}
+				});
+
+				clinicPages.forEach(function(set, setIndex){
+					pages.push({
+						clinicIndex: clinicIndex,
+						setIndex: setIndex,
+						clinic: clinic,
+						set: $(set)
+					})
+				})
+			});
+
+			console.log(pages);
+		}
+	}
 
 	var scheduler = {
 		nextDaysSchedule: null,
