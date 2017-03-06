@@ -12,6 +12,10 @@ body {
 	align-content: stretch;
 }
 
+#content {
+	padding: 0 2vh;
+}
+
 header {
 	text-align: center;
 	flex-shrink: 1;
