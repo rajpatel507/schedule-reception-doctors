@@ -220,7 +220,7 @@
 			if(viewAll) {
 				$(".clinic, .department", root).show();
 			} else {
-				$(".clinic, .department", root).hide();
+				$(".clinic, .department", root).css({"display":"none"});
 			}
 		},
 
@@ -234,7 +234,7 @@
 				page.set.show();
 				previousPage.clinic.fadeOut(function(){
 					page.clinic.fadeIn();
-					previousPage.set.hide();
+					previousPage.set.css({"display":"none"}); //Force to f
 				});
 			}
 			else {
@@ -255,7 +255,7 @@
 			var pages = [];
 
 			$(".clinic", root).each(function(clinicIndex){
-				$(".clinic, .department", root).hide();
+				$(".clinic, .department", root).css({"display":"none"});
 
 				var clinic = $(this);
 				clinic.show();
