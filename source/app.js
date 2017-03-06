@@ -16,10 +16,6 @@
 			clinic.id = data.id;
 			clinic.name = data.name;
 
-			data.resources.sort(function(a,b){
-				return a.lpuDepartment.name.localeCompare(b.lpuDepartment.name);
-			});
-
 			clinic.resources = data.resources;
 			model.clinics.push(clinic);
 		},
