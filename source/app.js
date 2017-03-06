@@ -1,6 +1,6 @@
 (function(w, d){
 	var ids = [10000376, 10000378];
-	var paginationInterval = 5000;
+	var paginationInterval = 10000;
 	var nextDaysSchedule = 6;
 
 	$(document).ready(function(){
@@ -98,8 +98,11 @@
 			statusPanel.status("External data loaded, rendering layout…");
 			view.render();
 
-			statusPanel.status("Rendered, computing dimensions…");
-			paginator.init();
+			statusPanel.status("Rendered, separate pages for screen dimensions…");
+			var pages = paginator.preparePages();
+
+			statusPanel.status("Separated, starting…");
+			paginator.start(pages, app.paginationInterval);
 
 			statusPanel.status("Ready");
 		}
@@ -214,12 +217,43 @@
 					}
 				}
 			}
+		},
+
+		resetView: function(viewAll) {
+			var root = view.domNode;
+			if(viewAll) {
+				$(".clinic, .department", root).show();
+			} else {
+				$(".clinic, .department", root).hide();
+			}
+		},
+
+		showPage: function(page) {
+			page.set.show();
+			page.clinic.fadeIn();
+		},
+
+		changePage: function(page, previousPage) {
+			if(page.clinicIndex != previousPage.clinicIndex) {
+				page.set.show();
+				previousPage.clinic.fadeOut(function(){
+					page.clinic.fadeIn();
+					previousPage.set.hide();
+				});
+			}
+			else {
+				previousPage.set.fadeOut(function(){
+					page.set.fadeIn();
+				});
+			}
 		}
+
+
 	};
 
 	var paginator = {
-
-		init: function() {
+		currentPageId: 0,
+		preparePages: function() {
 			var root = view.domNode;
 			var viewPortHeight = root.parent().outerHeight();
 			var pages = [];
@@ -265,17 +299,48 @@
 				});
 
 				clinicPages.forEach(function(set, setIndex){
-					pages.push({
-						clinicIndex: clinicIndex,
-						setIndex: setIndex,
-						clinic: clinic,
-						set: $(set)
-					})
+					if(set.length) {
+						pages.push({
+							clinicIndex: clinicIndex,
+							setIndex: setIndex,
+							clinic: clinic,
+							set: $(set)
+						});
+					}
 				})
 			});
 
-			console.log(pages);
+			return pages;
+		},
+
+		start: function(pages, interval) {
+			view.resetView();
+			paginator.currentPageId = 0;
+			var currentPage = pages[paginator.currentPageId];
+
+			view.showPage(currentPage);
+			statusPanel.page(paginator.currentPageId, pages.length);
+
+			window.setInterval(function() {
+				paginator.rotate(pages);
+			}, interval);
+		},
+
+		rotate: function(pages) {
+			var previousPage = pages[paginator.currentPageId];
+			paginator.currentPageId = paginator.nextPageId(pages, paginator.currentPageId);
+
+			var page = pages[paginator.currentPageId];
+
+			view.changePage(page, previousPage);
+			statusPanel.page(paginator.currentPageId, pages.length);
+		},
+
+		nextPageId: function(pages, pageId){
+			pageId++;
+			return pageId < pages.length ? pageId : 0;
 		}
+
 	}
 
 	var scheduler = {
@@ -333,6 +398,9 @@
 	var statusPanel = {
 		status: function(text){
 			$("#status").text(text);
+		},
+		page: function(page, pagesCount){
+			$("#paginator").text("Page " + (page+1) + " of " + pagesCount);
 		}
 	}
 	statusPanel.status("Javascript loaded, waiting to DOM…");
